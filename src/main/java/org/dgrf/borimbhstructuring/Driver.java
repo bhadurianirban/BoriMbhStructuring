@@ -14,10 +14,12 @@ import java.util.logging.Logger;
  */
 public class Driver {
     public static void main (String args[]) {
-        String inputFile = "/home/dgrfi/MEGA/MBHIndex/DevNagari/AdiParva.txt";
-        String outputFile = "/home/dgrfi/MEGA/MBHIndex/DevNagari/AdiParvaOut.txt";
+        String inputFile = "/home/bhaduri/MEGA/MBHIndex/DevNagari/AdiParva.txt";
+        String outputFile = "/home/bhaduri/MEGA/MBHIndex/DevNagari/AdiParvaOut.txt";
         ProcessText pt = new ProcessText(inputFile,outputFile);
-        pt.findShlokaNumber("सूक्ष्मार्थन्याययुक्तस्य वेदार्थैर्भूषितस्य च ||१६||");
+        //boolean b = pt.isShlokaEndLine("सूक्ष्मार्थन्याययुक्तस्य वेदार्थैर्भूषितस्य च ||१६||");
+        //System.out.println(b);
+        pt.readInputFile();
         
     }
     
