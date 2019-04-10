@@ -44,6 +44,8 @@ public class ProcessText {
         int adhyayId = 1;
         int shlokaNumber = 0;
         int textShlokaNumber = 0;
+        int prevTextShlokaNumber = -1;
+        int lastShlokMaxLine = 0;
         int shlokaLine = 1;
         String ubacha = "Narrator";
         String shlokaText = "";
@@ -58,33 +60,36 @@ public class ProcessText {
                     if (lineType != BAD_LINE) {
                         if (lineType == ADHYAY_NUMBER_LINE) {
                             adhyayId = convertDevNagariNumberString(line);
-                            if (shlokaNumber!=0)
-                                shlokaNumber= 1;
+                            if (shlokaNumber != 0) {
+                                shlokaNumber = 1;
+                            }
                             shlokaLine = 1;
                         } else if (lineType == UBACHA_LINE) {
-                            ubacha = line;
+                            ubacha = line.replaceAll("[|]", "").trim();
                         } else if (lineType == SHLOKA_LINE) {
-                            shlokaText = line;
-                            System.out.println(parvaId+" "+adhyayId+" "+ubacha+" "+shlokaNumber+" "+shlokaLine+" "+shlokaText+" "+textShlokaNumber);
+                            shlokaText = line.replaceAll("[|]", "").trim();
+                            System.out.println(parvaId + " " + adhyayId + " " + ubacha + " " + shlokaNumber + " " + shlokaLine + " " + shlokaText);
                             shlokaLine++;
                         } else if (lineType == SHLOKA_END_LINE) {
-                            shlokaText = line;
+                            shlokaText = line.replaceAll("[|]", "").replaceAll("[०१२३४५६७८९]", "").trim();
                             textShlokaNumber = findShlokaNumber(line);
-                            
-                            System.out.println(parvaId+" "+adhyayId+" "+ubacha+" "+shlokaNumber+" "+shlokaLine+" "+shlokaText+" "+textShlokaNumber);
-                            
-                            if (shlokaNumber==textShlokaNumber) {
-                                shlokaNumber=textShlokaNumber;
-                            } else {
-                                shlokaNumber++;
+                            if (prevTextShlokaNumber == textShlokaNumber) {
+                                shlokaNumber = textShlokaNumber;
+                                shlokaLine = lastShlokMaxLine + 1;
                             }
-                            
-                            shlokaLine=1;
+                            System.out.println(parvaId + " " + adhyayId + " " + ubacha + " " + shlokaNumber + " " + shlokaLine + " " + shlokaText + " " + textShlokaNumber);
+
+                            shlokaNumber++;
+                            lastShlokMaxLine = shlokaLine;
+                            shlokaLine = 1;
+
+                            prevTextShlokaNumber = textShlokaNumber;
+
                         }
                     }
 
                 }
-                
+
                 // read next line
                 line = reader.readLine();
             }
@@ -110,20 +115,43 @@ public class ProcessText {
         }
 
     }
-
-    public int findShlokaNumber(String shlokaLine) {
+    public int findShlokaNumber (String shlokaLine) {
+        int shlokaNumber;
+        try {
+            shlokaNumber = findShlokaNumberTypeOne(shlokaLine);
+        } catch (NotADevNagariNumberException ex) {
+            try {
+                shlokaNumber = findShlokaNumberTypeTwo(shlokaLine);
+            } catch (NotADevNagariNumberException ex1) {
+                return -1;
+            }
+        }
+        return shlokaNumber;
+    }
+    public int findShlokaNumberTypeOne(String shlokaLine) throws NotADevNagariNumberException {
         String regexString = Pattern.quote("||") + "(.*?)" + Pattern.quote("||");
         Pattern pattern = Pattern.compile(regexString);
         Matcher matcher = pattern.matcher(shlokaLine);
-        String shlokaNumberString="0";
+        String shlokaNumberString = "0";
         if (matcher.find()) {
             shlokaNumberString = matcher.group(1);
-        } 
-        try {
-            return (convertDevNagariNumberString(shlokaNumberString));
-        } catch (NotADevNagariNumberException ex) {
-            return -1;
         }
+
+        return (convertDevNagariNumberString(shlokaNumberString));
+
+    }
+
+    public int findShlokaNumberTypeTwo(String shlokaLine) throws NotADevNagariNumberException {
+        String regexString = Pattern.quote("| ") + "(.*?)" + Pattern.quote(" |");
+        Pattern pattern = Pattern.compile(regexString);
+        Matcher matcher = pattern.matcher(shlokaLine);
+        String shlokaNumberString = "0";
+        if (matcher.find()) {
+            shlokaNumberString = matcher.group(1);
+        }
+
+        return (convertDevNagariNumberString(shlokaNumberString));
+
     }
 
     public boolean isUbachaLine(String shlokaLine) {
