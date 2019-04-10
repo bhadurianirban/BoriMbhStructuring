@@ -26,7 +26,7 @@ public class ProcessText {
     private String inputFileName;
     private String outputFileName;
     private List<String> shlokaTextList;
-    
+
     private final int SHLOKA_LINE = 0;
     private final int SHLOKA_END_LINE = 1;
     private final int UBACHA_LINE = 2;
@@ -40,6 +40,13 @@ public class ProcessText {
 
     public void readInputFile() {
         BufferedReader reader;
+        int parvaId = 1;
+        int adhyayId = 1;
+        int shlokaNumber = 0;
+        int textShlokaNumber = 0;
+        int shlokaLine = 1;
+        String ubacha = "Narrator";
+        String shlokaText = "";
 
         try {
             reader = new BufferedReader(new FileReader(inputFileName));
@@ -47,38 +54,77 @@ public class ProcessText {
             while (line != null) {
                 line = line.trim();
                 if (!line.isEmpty()) {
-
-                    if (isAdhyayNumberLine(line)) {
-                        try {
-                            System.out.println(convertDevNagariNumberString(line));
-                        } catch (NotADevNagariNumberException ex) {
-                            Logger.getLogger(ProcessText.class.getName()).log(Level.SEVERE, null, ex);
+                    int lineType = decideLineType(line);
+                    if (lineType != BAD_LINE) {
+                        if (lineType == ADHYAY_NUMBER_LINE) {
+                            adhyayId = convertDevNagariNumberString(line);
+                            if (shlokaNumber!=0)
+                                shlokaNumber= 1;
+                            shlokaLine = 1;
+                        } else if (lineType == UBACHA_LINE) {
+                            ubacha = line;
+                        } else if (lineType == SHLOKA_LINE) {
+                            shlokaText = line;
+                            System.out.println(parvaId+" "+adhyayId+" "+ubacha+" "+shlokaNumber+" "+shlokaLine+" "+shlokaText+" "+textShlokaNumber);
+                            shlokaLine++;
+                        } else if (lineType == SHLOKA_END_LINE) {
+                            shlokaText = line;
+                            textShlokaNumber = findShlokaNumber(line);
+                            
+                            System.out.println(parvaId+" "+adhyayId+" "+ubacha+" "+shlokaNumber+" "+shlokaLine+" "+shlokaText+" "+textShlokaNumber);
+                            
+                            if (shlokaNumber==textShlokaNumber) {
+                                shlokaNumber=textShlokaNumber;
+                            } else {
+                                shlokaNumber++;
+                            }
+                            
+                            shlokaLine=1;
                         }
                     }
+
                 }
+                
                 // read next line
                 line = reader.readLine();
             }
             reader.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-    public void decideLineType (String shlokaLine) {
-        
-    }
-    public void findShlokaNumber(String shlokaLine) {
-        String regexString = Pattern.quote("||") + "(.*?)" + Pattern.quote("||");
-        Pattern pattern = Pattern.compile(regexString);
-        Matcher matcher = pattern.matcher(shlokaLine);
-        if (matcher.find()) {
-            System.out.println(matcher.group(1));
-        } else {
-            System.out.println("gg");
+        } catch (NotADevNagariNumberException e) {
+            e.printStackTrace();
         }
     }
 
-    
+    public int decideLineType(String shlokaLine) {
+        if (isAdhyayNumberLine(shlokaLine)) {
+            return ADHYAY_NUMBER_LINE;
+        } else if (isShlokaLine(shlokaLine)) {
+            return SHLOKA_LINE;
+        } else if (isShlokaEndLine(shlokaLine)) {
+            return SHLOKA_END_LINE;
+        } else if (isUbachaLine(shlokaLine)) {
+            return UBACHA_LINE;
+        } else {
+            return BAD_LINE;
+        }
+
+    }
+
+    public int findShlokaNumber(String shlokaLine) {
+        String regexString = Pattern.quote("||") + "(.*?)" + Pattern.quote("||");
+        Pattern pattern = Pattern.compile(regexString);
+        Matcher matcher = pattern.matcher(shlokaLine);
+        String shlokaNumberString="0";
+        if (matcher.find()) {
+            shlokaNumberString = matcher.group(1);
+        } 
+        try {
+            return (convertDevNagariNumberString(shlokaNumberString));
+        } catch (NotADevNagariNumberException ex) {
+            return -1;
+        }
+    }
 
     public boolean isUbachaLine(String shlokaLine) {
         if (shlokaLine.contains("वाच|")) {
@@ -89,37 +135,39 @@ public class ProcessText {
     }
 
     public boolean isShlokaLine(String shlokaLine) {
-        if (isUbachaLine(shlokaLine)) {
-            return false;
-        } else if (shlokaLine.contains("|")) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    public boolean isShlokaEndLine (String shlokaLine) {
-        if (isShlokaLine(shlokaLine)) {
-            if (shlokaLine.matches(".*[०१२३४५६७८९].*")) {
-                return true;
-            } else {
-                return false;
+        if (!isUbachaLine(shlokaLine)) {
+            if (shlokaLine.contains("|")) {
+                if (!shlokaLine.matches(".*[०१२३४५६७८९].*")) {
+                    return true;
+                }
             }
-        } else {
-            return false;
         }
+        return false;
     }
-    
-    public boolean isAdhyayNumberLine(String shlokaLine) {
-        if (isUbachaLine(shlokaLine)) {
-            return false;
-        } else if (isShlokaLine(shlokaLine)) {
-            return false;
-        } if (shlokaLine.matches(".*[०१२३४५६७८९].*")) {
-            return true;
-        } else {
-            return false;
+
+    public boolean isShlokaEndLine(String shlokaLine) {
+        if (!isUbachaLine(shlokaLine)) {
+            if (shlokaLine.contains("|")) {
+                if (shlokaLine.matches(".*[०१२३४५६७८९].*")) {
+                    return true;
+                }
+            }
         }
+        return false;
+
+    }
+
+    public boolean isAdhyayNumberLine(String shlokaLine) {
+        if (!isUbachaLine(shlokaLine)) {
+            if ((!isShlokaEndLine(shlokaLine))) {
+                if ((!isShlokaLine(shlokaLine))) {
+                    if (shlokaLine.matches(".*[०१२३४५६७८९].*")) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public int convertDevNagariNumberString(String numberString) throws NotADevNagariNumberException {
