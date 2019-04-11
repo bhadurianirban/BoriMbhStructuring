@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,21 +39,26 @@ public class ProcessText {
         this.outputFileName = outputFileName;
     }
 
-    public void readInputFile() {
+    public void processFile() {
         BufferedReader reader;
-        int parvaId = 1;
+        PrintWriter writer;
+        
+        
+        int parvaId = 6;
         int adhyayId = 1;
-        int shlokaNumber = 0;
+        int shlokaNumber = 1;
         int textShlokaNumber = 0;
         int prevTextShlokaNumber = -1;
         int lastShlokMaxLine = 0;
         int shlokaLine = 1;
         String ubacha = "Narrator";
         String shlokaText = "";
-
+        ShlokaLine sl = new ShlokaLine();
         try {
             reader = new BufferedReader(new FileReader(inputFileName));
+            writer = new PrintWriter(outputFileName, "UTF-8");
             String line = reader.readLine();
+            String outPutLine;
             while (line != null) {
                 line = line.trim();
                 if (!line.isEmpty()) {
@@ -68,7 +74,10 @@ public class ProcessText {
                             ubacha = line.replaceAll("[|]", "").trim();
                         } else if (lineType == SHLOKA_LINE) {
                             shlokaText = line.replaceAll("[|]", "").trim();
-                            System.out.println(parvaId + " " + adhyayId + " " + ubacha + " " + shlokaNumber + " " + shlokaLine + " " + shlokaText);
+                            outPutLine = parvaId + "," + adhyayId + "," + ubacha + "," + shlokaNumber + "," + shlokaLine + "," + shlokaText+",|";
+
+                            System.out.println(outPutLine);
+                            writer.println(outPutLine);
                             shlokaLine++;
                         } else if (lineType == SHLOKA_END_LINE) {
                             shlokaText = line.replaceAll("[|]", "").replaceAll("[०१२३४५६७८९]", "").trim();
@@ -77,8 +86,9 @@ public class ProcessText {
                                 shlokaNumber = textShlokaNumber;
                                 shlokaLine = lastShlokMaxLine + 1;
                             }
-                            System.out.println(parvaId + " " + adhyayId + " " + ubacha + " " + shlokaNumber + " " + shlokaLine + " " + shlokaText + " " + textShlokaNumber);
-
+                            outPutLine = parvaId + "," + adhyayId + "," + ubacha + "," + shlokaNumber + "," + shlokaLine + "," + shlokaText+",||";
+                            System.out.println(outPutLine);
+                            writer.println(outPutLine);
                             shlokaNumber++;
                             lastShlokMaxLine = shlokaLine;
                             shlokaLine = 1;
@@ -93,10 +103,9 @@ public class ProcessText {
                 // read next line
                 line = reader.readLine();
             }
+            writer.close();
             reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (NotADevNagariNumberException e) {
+        } catch (IOException | NotADevNagariNumberException e) {
             e.printStackTrace();
         }
     }
@@ -115,7 +124,8 @@ public class ProcessText {
         }
 
     }
-    public int findShlokaNumber (String shlokaLine) {
+
+    public int findShlokaNumber(String shlokaLine) {
         int shlokaNumber;
         try {
             shlokaNumber = findShlokaNumberTypeOne(shlokaLine);
@@ -128,6 +138,7 @@ public class ProcessText {
         }
         return shlokaNumber;
     }
+
     public int findShlokaNumberTypeOne(String shlokaLine) throws NotADevNagariNumberException {
         String regexString = Pattern.quote("||") + "(.*?)" + Pattern.quote("||");
         Pattern pattern = Pattern.compile(regexString);

@@ -16,6 +16,7 @@ public class ShlokaLine {
     private int shlokaLine;
     private String ubacha;
     private String shlokaText;
+    private String endChar;
 
     public int getParvaId() {
         return parvaId;
@@ -63,6 +64,14 @@ public class ShlokaLine {
 
     public void setShlokaText(String shlokaText) {
         this.shlokaText = shlokaText;
+    }
+
+    public String getEndChar() {
+        return endChar;
+    }
+
+    public void setEndChar(String endChar) {
+        this.endChar = endChar;
     }
     
 }
