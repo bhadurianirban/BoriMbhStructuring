@@ -34,25 +34,52 @@ public class ProcessText {
     private final int ADHYAY_NUMBER_LINE = 3;
     private final int BAD_LINE = 99;
 
-    public ProcessText(String inputFileName, String outputFileName) {
+    private int parvaId;
+    private int adhyayId;
+    private int shlokaNumber;
+    private int textShlokaNumber;
+    private int prevTextShlokaNumber;
+    private int lastShlokMaxLine;
+    private int shlokaLine;
+    private String ubacha;
+    private String shlokaText;
+    Map<Character, Character> devToEnglishMap;
+
+    public ProcessText(String inputFileName, String outputFileName,int parvaId) {
         this.inputFileName = inputFileName;
         this.outputFileName = outputFileName;
+        devToEnglishMap = new HashMap<>();
+        this.parvaId = parvaId;
+        devToEnglishMap.put('०', '0');
+        devToEnglishMap.put('१', '1');
+        devToEnglishMap.put('२', '2');
+        devToEnglishMap.put('३', '3');
+        devToEnglishMap.put('४', '4');
+        devToEnglishMap.put('५', '5');
+        devToEnglishMap.put('६', '6');
+        devToEnglishMap.put('७', '7');
+        devToEnglishMap.put('८', '8');
+        devToEnglishMap.put('९', '9');
     }
 
     public void processFile() {
         BufferedReader reader;
         PrintWriter writer;
+
         
+        adhyayId = 1;
+        if (parvaId == 1) {
+            shlokaNumber = 0;
+        } else {
+            shlokaNumber = 1;
+        }
         
-        int parvaId = 6;
-        int adhyayId = 1;
-        int shlokaNumber = 1;
-        int textShlokaNumber = 0;
-        int prevTextShlokaNumber = -1;
-        int lastShlokMaxLine = 0;
-        int shlokaLine = 1;
-        String ubacha = "Narrator";
-        String shlokaText = "";
+        textShlokaNumber = 0;
+        prevTextShlokaNumber = -1;
+        lastShlokMaxLine = 0;
+        shlokaLine = 1;
+        ubacha = "Narrator";
+        shlokaText = "";
         ShlokaLine sl = new ShlokaLine();
         try {
             reader = new BufferedReader(new FileReader(inputFileName));
@@ -73,20 +100,20 @@ public class ProcessText {
                         } else if (lineType == UBACHA_LINE) {
                             ubacha = line.replaceAll("[|]", "").trim();
                         } else if (lineType == SHLOKA_LINE) {
-                            shlokaText = line.replaceAll("[|]", "").trim();
-                            outPutLine = parvaId + "," + adhyayId + "," + ubacha + "," + shlokaNumber + "," + shlokaLine + "," + shlokaText+",|";
+                            shlokaText = line.replaceAll("[|;]", "").trim();
+                            outPutLine = parvaId + "," + adhyayId + "," + ubacha + "," + shlokaNumber + "," + shlokaLine + "," + shlokaText + ",|";
 
                             System.out.println(outPutLine);
                             writer.println(outPutLine);
                             shlokaLine++;
                         } else if (lineType == SHLOKA_END_LINE) {
-                            shlokaText = line.replaceAll("[|]", "").replaceAll("[०१२३४५६७८९]", "").trim();
+                            shlokaText = line.replaceAll("[|;]", "").replaceAll("[०१२३४५६७८९]", "").trim();
                             textShlokaNumber = findShlokaNumber(line);
                             if (prevTextShlokaNumber == textShlokaNumber) {
                                 shlokaNumber = textShlokaNumber;
                                 shlokaLine = lastShlokMaxLine + 1;
                             }
-                            outPutLine = parvaId + "," + adhyayId + "," + ubacha + "," + shlokaNumber + "," + shlokaLine + "," + shlokaText+",||";
+                            outPutLine = parvaId + "," + adhyayId + "," + ubacha + "," + shlokaNumber + "," + shlokaLine + "," + shlokaText + ",||";
                             System.out.println(outPutLine);
                             writer.println(outPutLine);
                             shlokaNumber++;
@@ -210,17 +237,7 @@ public class ProcessText {
     }
 
     public int convertDevNagariNumberString(String numberString) throws NotADevNagariNumberException {
-        Map<Character, Character> devToEnglishMap = new HashMap<Character, Character>();
-        devToEnglishMap.put('०', '0');
-        devToEnglishMap.put('१', '1');
-        devToEnglishMap.put('२', '2');
-        devToEnglishMap.put('३', '3');
-        devToEnglishMap.put('४', '4');
-        devToEnglishMap.put('५', '5');
-        devToEnglishMap.put('६', '6');
-        devToEnglishMap.put('७', '7');
-        devToEnglishMap.put('८', '8');
-        devToEnglishMap.put('९', '9');
+
         char[] numberStringArray = numberString.toCharArray();
         String englishNumberString = "";
         for (int i = 0; i < numberStringArray.length; i++) {

@@ -5,8 +5,7 @@
  */
 package org.dgrf.borimbhstructuring;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.File;
 
 /**
  *
@@ -14,12 +13,32 @@ import java.util.logging.Logger;
  */
 public class Driver {
     public static void main (String args[]) {
-        String inputFile = "/home/dgrfi/MEGA/MBHIndex/DevNagari/VishwaParva.txt";
-        String outputFile = "/home/dgrfi/MEGA/MBHIndex/DevNagari/VishwaParvaOut.txt";
-        ProcessText pt = new ProcessText(inputFile,outputFile);
-        //boolean b = pt.isShlokaEndLine("सूक्ष्मार्थन्याययुक्तस्य वेदार्थैर्भूषितस्य च ||१६||");
-        //System.out.println(b);
-        pt.processFile();
+        String inputDirectory = "/home/bhaduri/MEGA/MBHIndex/DevNagari/input";
+        String outputDirectory = "/home/bhaduri/MEGA/MBHIndex/DevNagari/output";
+        String inputFilePath="";
+        String outputFilePath="";
+        File inputFolder = new File (inputDirectory);
+        if (inputFolder.isDirectory()) {
+            File[] listOfInputFiles = inputFolder.listFiles();
+            for (File inputFile:listOfInputFiles) {
+                if (inputFile.isFile()) {
+                    String prefix  = inputFile.getName().substring(0, 2);
+                    int parvaId = Integer.parseInt(prefix);
+                    inputFilePath = inputFile.getPath();
+                    String inputFileName = inputFile.getName();
+                    String outputFileName = inputFileName.replaceAll(".txt", ".csv");
+                    outputFilePath = outputDirectory+File.separator+outputFileName;
+                    System.out.println(inputFilePath+" "+outputFilePath+" "+parvaId);
+                    ProcessText pt = new ProcessText(inputFilePath, outputFilePath, parvaId);
+                    pt.processFile();
+                    //System.out.println(inputFile.getParent());
+                }
+            }
+        } else {
+            System.out.println("Input path is not a folder");
+        }
+//        ProcessText pt = new ProcessText(inputFile,outputFile,2);
+//        pt.processFile();
         
     }
     
