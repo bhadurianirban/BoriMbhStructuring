@@ -26,6 +26,7 @@ public class ProcessText {
 
     private String inputFileName;
     private String outputFileName;
+    private PrintWriter errorWriter;
     private List<String> shlokaTextList;
 
     private final int SHLOKA_LINE = 0;
@@ -45,9 +46,10 @@ public class ProcessText {
     private String shlokaText;
     Map<Character, Character> devToEnglishMap;
 
-    public ProcessText(String inputFileName, String outputFileName,int parvaId) {
+    public ProcessText(String inputFileName, String outputFileName,PrintWriter errorWriter, int parvaId) {
         this.inputFileName = inputFileName;
         this.outputFileName = outputFileName;
+        this.errorWriter = errorWriter;
         devToEnglishMap = new HashMap<>();
         this.parvaId = parvaId;
         devToEnglishMap.put('०', '0');
@@ -65,6 +67,7 @@ public class ProcessText {
     public void processFile() {
         BufferedReader reader;
         PrintWriter writer;
+        
 
         
         adhyayId = 1;
@@ -84,6 +87,7 @@ public class ProcessText {
         try {
             reader = new BufferedReader(new FileReader(inputFileName));
             writer = new PrintWriter(outputFileName, "UTF-8");
+            
             String line = reader.readLine();
             String outPutLine;
             while (line != null) {
@@ -123,6 +127,8 @@ public class ProcessText {
                             prevTextShlokaNumber = textShlokaNumber;
 
                         }
+                    } else {
+                        errorWriter.println(parvaId + "," + adhyayId + "," + ubacha + "," + shlokaNumber+ "," + shlokaLine + "," + line);
                     }
 
                 }
@@ -132,6 +138,7 @@ public class ProcessText {
             }
             writer.close();
             reader.close();
+            
         } catch (IOException | NotADevNagariNumberException e) {
             e.printStackTrace();
         }
