@@ -19,8 +19,15 @@ import java.util.logging.Logger;
 public class Driver {
 
     public static void main(String args[]) {
-        String inputDirectory = "/home/dgrfi/MEGA/MBHIndex/DevNagari/input";
-        String outputDirectory = "/home/dgrfi/MEGA/MBHIndex/DevNagari/output";
+        //structureTheBORI();
+        UbachaNumbering ubachaNumbering = new UbachaNumbering();
+        ubachaNumbering.UbachaNumbering();
+
+
+    }
+    public static void structureTheBORI() {
+        String inputDirectory = "/home/bhaduri/MEGA/MBHIndex/DevNagari/input";
+        String outputDirectory = "/home/bhaduri/MEGA/MBHIndex/DevNagari/output";
         String inputFilePath = "";
         String outputFilePath = "";
         String errorFilePath = outputDirectory + File.separator + "error.txt";
@@ -55,9 +62,5 @@ public class Driver {
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(Driver.class.getName()).log(Level.SEVERE, null, ex);
         }
-//        ProcessText pt = new ProcessText(inputFile,outputFile,2);
-//        pt.processFile();
-
     }
-
 }
