@@ -128,6 +128,7 @@ public class ProcessText {
 
                         }
                     } else {
+                        if (!line.equals("<HR>"))
                         errorWriter.println(parvaId + "," + adhyayId + "," + ubacha + "," + shlokaNumber+ "," + shlokaLine + "," + line);
                     }
 

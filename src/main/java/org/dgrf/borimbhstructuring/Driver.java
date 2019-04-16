@@ -19,8 +19,8 @@ import java.util.logging.Logger;
 public class Driver {
 
     public static void main(String args[]) {
-        String inputDirectory = "/home/bhaduri/MEGA/MBHIndex/DevNagari/input";
-        String outputDirectory = "/home/bhaduri/MEGA/MBHIndex/DevNagari/output";
+        String inputDirectory = "/home/dgrfi/MEGA/MBHIndex/DevNagari/input";
+        String outputDirectory = "/home/dgrfi/MEGA/MBHIndex/DevNagari/output";
         String inputFilePath = "";
         String outputFilePath = "";
         String errorFilePath = outputDirectory + File.separator + "error.txt";
