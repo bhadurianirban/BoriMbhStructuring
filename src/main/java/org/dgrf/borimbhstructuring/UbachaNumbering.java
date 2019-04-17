@@ -5,9 +5,16 @@
  */
 package org.dgrf.borimbhstructuring;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import org.dgrf.borimbhstructuring.DAO.MainTextDAO;
 import org.dgrf.borimbhstructuring.DAO.UbachaDAO;
+import org.dgrf.borimbhstructuring.entities.Maintext;
+import org.dgrf.borimbhstructuring.entities.MaintextPK;
 import org.dgrf.borimbhstructuring.entities.Ubacha;
 
 /**
@@ -15,11 +22,76 @@ import org.dgrf.borimbhstructuring.entities.Ubacha;
  * @author bhaduri
  */
 public class UbachaNumbering {
+
     public void UbachaNumbering() {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("org.dgrf_BoriMbhStructuring_jar_1.0-SNAPSHOTPU");
         UbachaDAO ubachaDAO = new UbachaDAO(emf);
-        Ubacha  ubacha = ubachaDAO.getUbachaByName("अश्मोवाच");
-        System.out.println(ubacha.getId());
+        Ubacha ubacha;
+        MainTextDAO mainTextDAO = new MainTextDAO(emf);
+        Maintext maintext = new Maintext();
+        MaintextPK maintextPK = new MaintextPK();
+        
+        
+        String csvFile = "/home/bhaduri/MEGA/MBHIndex/DevNagari/output/Mahabharat.csv";
+        BufferedReader br = null;
+        String line = "";
+        String cvsSplitBy = ",";
+        
+        String parvaId;
+        String adhyayId;
+        int ubachaId;
+        String ubachaName;
+        String shlokaNum;
+        String shlokaLine;
+        String firstChar;
+        String shlokaText;
+        String endChar;
+        
+        try {
+
+            br = new BufferedReader(new FileReader(csvFile));
+            while ((line = br.readLine()) != null) {
+
+                // use comma as separator
+                String[] shlokaCSVLine = line.split(cvsSplitBy);
+                parvaId = shlokaCSVLine[0];
+                adhyayId = shlokaCSVLine[1];
+                ubachaName = shlokaCSVLine[2];
+                ubacha = ubachaDAO.getUbachaByName(ubachaName);
+                ubachaId = ubacha.getId();
+                shlokaNum = shlokaCSVLine[3];
+                shlokaLine = shlokaCSVLine[4];
+                shlokaText = shlokaCSVLine[5];
+                firstChar = shlokaText.substring(0, 1);
+                endChar = shlokaCSVLine[6];
+                maintextPK.setParvaId(Integer.parseInt(parvaId));
+                maintextPK.setAdhyayid(Integer.parseInt(adhyayId));
+                maintextPK.setShlokanum(Integer.parseInt(shlokaNum));
+                maintextPK.setShlokaline(Integer.parseInt(shlokaLine));
+                
+                maintext.setMaintextPK(maintextPK);
+                maintext.setEndchar(endChar);
+                maintext.setFirstchar(firstChar);
+                maintext.setUbachaId(ubacha);
+                
+                System.out.println(parvaId+","+adhyayId+","+ubachaId+","+shlokaNum+","+shlokaLine+","+shlokaText+","+firstChar+","+endChar);
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
-    
+
+
 }
