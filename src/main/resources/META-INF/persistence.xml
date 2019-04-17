@@ -7,6 +7,7 @@
     <class>org.dgrf.borimbhstructuring.entities.Words</class>
     <class>org.dgrf.borimbhstructuring.entities.Ubacha</class>
     <class>org.dgrf.borimbhstructuring.entities.Referencetext</class>
+    <shared-cache-mode>NONE</shared-cache-mode>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/dgrfdb0601?zeroDateTimeBehavior=CONVERT_TO_NULL"/>
       <property name="javax.persistence.jdbc.user" value="bhadurianirban"/>
