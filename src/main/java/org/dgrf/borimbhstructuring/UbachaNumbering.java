@@ -9,12 +9,17 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import org.dgrf.borimbhstructuring.DAO.MainTextDAO;
 import org.dgrf.borimbhstructuring.DAO.UbachaDAO;
 import org.dgrf.borimbhstructuring.entities.Maintext;
 import org.dgrf.borimbhstructuring.entities.MaintextPK;
+import org.dgrf.borimbhstructuring.entities.Parva;
 import org.dgrf.borimbhstructuring.entities.Ubacha;
 
 /**
@@ -29,13 +34,18 @@ public class UbachaNumbering {
         Ubacha ubacha;
         MainTextDAO mainTextDAO = new MainTextDAO(emf);
         Maintext maintext = new Maintext();
+        Parva parva = new Parva();
         MaintextPK maintextPK = new MaintextPK();
         
         
-        String csvFile = "/home/bhaduri/MEGA/MBHIndex/DevNagari/output/Mahabharat.csv";
+        String csvFile = "/home/dgrfi/MEGA/MBHIndex/DevNagari/output/Mahabharat.csv";
+        
+        
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ",";
+        
+        Date createDate = new Date();
         
         String parvaId;
         String adhyayId;
@@ -46,7 +56,8 @@ public class UbachaNumbering {
         String firstChar;
         String shlokaText;
         String endChar;
-        
+        int rowCount = 0;
+        EntityManager em = mainTextDAO.getEntityManager();
         try {
 
             br = new BufferedReader(new FileReader(csvFile));
@@ -68,12 +79,19 @@ public class UbachaNumbering {
                 maintextPK.setAdhyayid(Integer.parseInt(adhyayId));
                 maintextPK.setShlokanum(Integer.parseInt(shlokaNum));
                 maintextPK.setShlokaline(Integer.parseInt(shlokaLine));
-                
+                parva.setId(Integer.parseInt(parvaId));
+                maintext.setParva(parva);
                 maintext.setMaintextPK(maintextPK);
                 maintext.setEndchar(endChar);
                 maintext.setFirstchar(firstChar);
+                maintext.setShlokatext(shlokaText);
                 maintext.setUbachaId(ubacha);
-                
+                maintext.setLastupdatedts(createDate);
+                try {
+                    mainTextDAO.create(maintext);
+                } catch (Exception ex) {
+                    Logger.getLogger(UbachaNumbering.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 System.out.println(parvaId+","+adhyayId+","+ubachaId+","+shlokaNum+","+shlokaLine+","+shlokaText+","+firstChar+","+endChar);
             }
 
