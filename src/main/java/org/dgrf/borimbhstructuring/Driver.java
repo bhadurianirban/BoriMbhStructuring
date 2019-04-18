@@ -20,8 +20,8 @@ public class Driver {
 
     public static void main(String args[]) {
         //structureTheBORI();
-        UbachaNumbering ubachaNumbering = new UbachaNumbering();
-        ubachaNumbering.UbachaNumbering();
+        LoadToDataBase ubachaNumbering = new LoadToDataBase();
+        ubachaNumbering.loadWords();
 
 
     }
