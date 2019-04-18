@@ -20,8 +20,11 @@ public class Driver {
 
     public static void main(String args[]) {
         //structureTheBORI();
-        LoadToDataBase ubachaNumbering = new LoadToDataBase();
-        ubachaNumbering.loadWords();
+        //LoadToDataBase ubachaNumbering = new LoadToDataBase();
+        //ubachaNumbering.loadWords();
+        
+        DumpToFiles dtf = new DumpToFiles();
+        dtf.dumpParva();
 
 
     }
