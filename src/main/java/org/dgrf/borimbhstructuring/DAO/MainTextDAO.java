@@ -5,6 +5,8 @@
  */
 package org.dgrf.borimbhstructuring.DAO;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -21,16 +23,20 @@ public class MainTextDAO extends MaintextJpaController {
         super(emf);
     }
 
-    public List<Object[]> getShlokaLines() {
+    public List<String> getShlokaLines(int parvaId) {
+        System.out.println("running for parva"+parvaId);
         EntityManager em = getEntityManager();
-        Query q = em.createNativeQuery("SELECT  GROUP_CONCAT(shlokatext  ORDER BY shlokaline SEPARATOR ' ') as s  from maintext where parva_id = ?1 GROUP by adhyayid, shlokanum ");
-        q.setParameter(1, 1);
+        Query q = em.createNativeQuery("SELECT  GROUP_CONCAT(shlokatext  ORDER BY shlokaline SEPARATOR ' ') 's',1 from maintext where parva_id = ?1 GROUP by adhyayid, shlokanum ");
+        q.setParameter(1, parvaId);
         List<Object[]> shlokaLines = q.getResultList();
-
+        
+        List<String>shlokaTextLines = new ArrayList<>();
         for (Object[] shlokaLine : shlokaLines) {
-            System.out.println(shlokaLine);
+             shlokaTextLines.add((String) shlokaLine[0]);
+            
         }
-        return shlokaLines;
+        
+        return shlokaTextLines;
     }
 
 }
